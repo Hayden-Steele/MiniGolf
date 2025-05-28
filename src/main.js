@@ -16,11 +16,8 @@ let wasReset = false;
 /** @type {Window[]} */
 let windowStorage = []
 let windowNames = [
-    // "BallWindow", // 0
-    // "GoalWindow", // 1
-    // "Float1",     // 2
-    // "Float2",     // 3
-    // "Float3"      // 4
+    "BallWindow", // 0
+    "GoalWindow", // 1
 ]
 function spawnWindows() {
     for (let i = 0; i < windowNames.length; i++) {

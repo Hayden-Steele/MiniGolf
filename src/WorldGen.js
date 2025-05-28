@@ -5,28 +5,17 @@ let holePar = 0;
 /** @type {Bounds[]} */
 let heightBounds = []
 
-let containsWater = false;
 function setUpWorld() {
     heightBounds = []
-    containsWater = false;
-
-    // Add Borders
-    let borderLimt = 0.4
-    // let waterLimit = 0.2
-    let waterLimit = -1
 
     // Add wall points to posSystem
     let wallSystem = new PositionStorage(worldBounds)
-    let waterSystem = new PositionStorage(worldBounds)
     worldBounds.loopThroughScale((x, y) => {
-        if (biome[x][y] > borderLimt) { // Large Grass Patches
+
+        if (biome[x][y] > 0.4) { // Borders
             wallSystem.addPoint(x, y)
         }
-        if (biome[x][y] < waterLimit) {
-            waterSystem.addPoint(x, y)
-            containsWater = true;
-        }
-
+        
     }, 32)
     // Loop through system and assign wall types
     wallSystem.positions.forEach((pos) => {
@@ -38,30 +27,13 @@ function setUpWorld() {
                 pos.x,
                 pos.y,
                 0,
-                2.05, 
+                2.05,
                 false,
-                "", 
+                "",
                 1
             )
         )
     })
-
-    waterSystem.positions.forEach((pos) => {
-        let name = borderName(pos.x, pos.y, 32, waterSystem)
-        setBoundsHeight(name, -8, pos.x, pos.y, 2)
-        scene.push(
-            new GameObject("Nature/Water/" + name + ".png",
-                pos.x,
-                pos.y,
-                0,
-                2.05, 
-                false,
-                "", 
-                1
-            )
-        )
-    })
-
 
     scene.push(
         new GameObject("Objects/Arrow.png", 50, 50, 0, 5, false, "arrow", -100000)
@@ -109,7 +81,7 @@ function returnMax(a, x, y) {
 
     try {
         b = heightMap[x][y]
-    } catch(err) {}
+    } catch (err) { }
 
     return a > b ? a : b
 }
@@ -149,51 +121,42 @@ function minHeightInSurroundings(point, radius) {
 function findRandomGrassLocation(minDistanceFromBorder, minDistFromEdge) {
     let x, y;
     let startTime = new Date()
-    
-    if (containsWater) {
-        do {
-            x = Math.floor(Math.random() * (heightMap.length -( 2 * minDistanceFromBorder)) + minDistanceFromBorder);
-            y = Math.floor(Math.random() * (heightMap[0].length - (2 * minDistanceFromBorder)) + minDistanceFromBorder);
-        } while (
-            !(maxHeightInSurroundings({x: x, y: y}, minDistFromEdge) == 0 && minHeightInSurroundings({x: x, y: y}, minDistFromEdge) == 0)
-        ); // Keep searching until a grass location is found
-    } else {
-        do {
-            x = Math.floor(Math.random() * (heightMap.length -( 2 * minDistanceFromBorder)) + minDistanceFromBorder);
-            y = Math.floor(Math.random() * (heightMap[0].length - (2 * minDistanceFromBorder)) + minDistanceFromBorder);
 
-            if (new Date().getTime() - startTime.getTime() > 2000) {
-                // minDistanceFromBorder = 20
-                console.log("Too Long... Brute Forcing")
-                // console.log(x, y)
-                // overCount+
+    do {
+        x = Math.floor(Math.random() * (heightMap.length - (2 * minDistanceFromBorder)) + minDistanceFromBorder);
+        y = Math.floor(Math.random() * (heightMap[0].length - (2 * minDistanceFromBorder)) + minDistanceFromBorder);
 
-                let arr = []
-                for (let x = 1; x < heightMap.length; x += 2) {
-                    for (let y = 1; y < heightMap[0].length; y += 2) {
-                        if (maxHeightInSurroundings({x: x, y: y}, minDistFromEdge) == 0) {
-                            arr.push({x: x, y: y})
-                        }
+        if (new Date().getTime() - startTime.getTime() > 2000) {
+            // minDistanceFromBorder = 20
+            console.log("Too Long... Brute Forcing")
+            // console.log(x, y)
+            // overCount+
+
+            let arr = []
+            for (let x = 1; x < heightMap.length; x += 2) {
+                for (let y = 1; y < heightMap[0].length; y += 2) {
+                    if (maxHeightInSurroundings({ x: x, y: y }, minDistFromEdge) == 0) {
+                        arr.push({ x: x, y: y })
                     }
                 }
-
-                console.log(arr)
-                console.log(arr[Math.floor(Math.random() * arr.length)])
-
-                return arr[Math.floor(Math.random() * arr.length)]
-
             }
-        } while (
-            !(maxHeightInSurroundings({x: x, y: y}, minDistFromEdge) == 0)
-        ); // Keep searching until a grass location is found
-    }
-    
+
+            console.log(arr)
+            console.log(arr[Math.floor(Math.random() * arr.length)])
+
+            return arr[Math.floor(Math.random() * arr.length)]
+
+        }
+    } while (
+        !(maxHeightInSurroundings({ x: x, y: y }, minDistFromEdge) == 0)
+    ); // Keep searching until a grass location is found
+
 
     return { x: x, y: y };
 }
 
 function findFarthestGrassLocation(startPoint, minDistanceFromBorder, minDistFromEdge) {
-    console.log("Finding Ball Location")    
+    console.log("Finding Ball Location")
 
     let maxDistance = -1;
     let farthestLocation = { x: 500, y: 500 };
@@ -203,16 +166,16 @@ function findFarthestGrassLocation(startPoint, minDistanceFromBorder, minDistFro
             if (heightMap[x][y] != 0) { continue; }
 
             const distance = dstBetweenPoints({ x: x, y: y }, startPoint)
-            
-            if (distance > maxDistance && maxHeightInSurroundings({x: x, y: y}, minDistFromEdge) == 0 && minHeightInSurroundings({x: x, y: y}, minDistFromEdge) == 0) {
+
+            if (distance > maxDistance && maxHeightInSurroundings({ x: x, y: y }, minDistFromEdge) == 0 && minHeightInSurroundings({ x: x, y: y }, minDistFromEdge) == 0) {
                 maxDistance = distance;
                 farthestLocation = { x: x, y: y };
             }
         }
     }
 
-    return { loc: farthestLocation, dist: maxDistance};
-}  
+    return { loc: farthestLocation, dist: maxDistance };
+}
 
 
 
@@ -226,7 +189,7 @@ function genHeightMaps() {
             if (bound.inBounds(x, y)) {
                 try {
                     heightMap[x][y] = bound.value // Height of the platforms
-                } catch (err) {}
+                } catch (err) { }
             }
         })
     })
@@ -236,7 +199,7 @@ function genHeightMaps() {
 
 
 function borderName(x, y, imgScale, posSystem) {
-    
+
     let b = true
     let t = true
     let l = true
@@ -318,7 +281,7 @@ function setBoundsHeight(name, height, xPos, yPos, renderScale) {
             bounds = new Bounds(xPos - 8 * renderScale, yPos - 16 * renderScale, 16 * renderScale, 16 * renderScale, height)
             break;
         case "MR":
-            bounds = new Bounds(xPos - 8 * renderScale, yPos - 16  * renderScale, 7 * renderScale, 16 * renderScale, height)
+            bounds = new Bounds(xPos - 8 * renderScale, yPos - 16 * renderScale, 7 * renderScale, 16 * renderScale, height)
             break;
 
 
@@ -336,11 +299,11 @@ function setBoundsHeight(name, height, xPos, yPos, renderScale) {
 
 
         case "MBR":
-            bounds = new       Bounds(xPos - 8 * renderScale, yPos - 16 * renderScale, 7 * renderScale, 16 * renderScale, height)
+            bounds = new Bounds(xPos - 8 * renderScale, yPos - 16 * renderScale, 7 * renderScale, 16 * renderScale, height)
             secondBounds = new Bounds(xPos - 8 * renderScale, yPos - 16 * renderScale, 16 * renderScale, 11 * renderScale, height)
             break;
         case "MBL":
-            bounds = new       Bounds(xPos - 8 * renderScale, yPos - 16 * renderScale, 16 * renderScale, 11 * renderScale, height)
+            bounds = new Bounds(xPos - 8 * renderScale, yPos - 16 * renderScale, 16 * renderScale, 11 * renderScale, height)
             secondBounds = new Bounds(xPos + 1 * renderScale, yPos - 16 * renderScale, 7 * renderScale, 16 * renderScale, height)
             break;
         case "MTR":

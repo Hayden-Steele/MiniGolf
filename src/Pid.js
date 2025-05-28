@@ -66,3 +66,31 @@ class Pid {
         this.resetTimer = 10
     }
 };
+
+
+
+
+class Avg {
+
+    vals = []
+    size = 0
+
+    index = -1
+
+    constructor(size) {
+        this.size = size
+    }
+
+    addVal(val) {
+        this.index += 1
+
+        if (this.vals.length >= this.size) {
+            this.vals[this.index % this.size] = val
+        } else {
+            this.vals.push(val)
+        }
+
+        return this.vals.reduce((prev, val) => { return prev + val}) / this.vals.length
+    }
+
+}
