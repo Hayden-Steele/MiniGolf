@@ -1,2 +1,2 @@
 # MINI GOLF
-https://chickennuggetsperson.github.io/MiniGolf/
+[https://hayden-steele.github.io/MiniGolf/](https://hayden-steele.github.io/MiniGolf/)
